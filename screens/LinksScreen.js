@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View, Text } from 'react-native';
+import { ScrollView, StyleSheet, TouchableOpacity, Text } from 'react-native';
 
 import Grid from 'react-native-grid-component'; // Version can be specified in package.json
 
@@ -51,13 +51,16 @@ export default class LinksScreen extends React.Component {
       //console.log(i) this i value is the column index
       //data.index is the sequential index
       //(Math.floor(data.index/board[0].length)) is the row index
-      console.log((Math.floor(data.index/board[0].length)))
+      // console.log((Math.floor(data.index/board[0].length)))
+      let row = (Math.floor(data.index/board[0].length))
+      let column = i
+
       return (
-        <View style={[{ backgroundColor: data.color }, styles.item]} key={i} >
+        <TouchableOpacity style={[{ backgroundColor: data.color }, styles.item]} key={i} onPress={()=>{console.log(board[row][column])}} >
           <Text>
             {board[(Math.floor(data.index/board[0].length))][i]}
           </Text>
-        </View>
+        </TouchableOpacity>
       )
     }
 
