@@ -1,10 +1,14 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View, Text } from 'react-native';
 
 import Grid from 'react-native-grid-component'; // Version can be specified in package.json
 
-function generateRandomColorsArray(length) {
-  return Array.from(Array(length)).map(() => colors[Math.floor(Math.random() * colors.length)]);
+function generateDataArray(length) {
+
+
+  return Array.from(Array(length)).map((value,index) => {
+    return {color:colors[Math.floor(Math.random() * colors.length)], board:board, index:index}
+  });
 }
 
 // Helper functions
@@ -34,14 +38,29 @@ export default class LinksScreen extends React.Component {
   constructor(props) {
     super(props);
 
+    let dimensions = board.length * board[0].length
+
     this.state = {
-      data: generateRandomColorsArray(21),
+      data: generateDataArray(dimensions),
     };
   }
 
 
   _renderItem = (data, i) =>
-    <View style={[{ backgroundColor: data }, styles.item]} key={i} />
+    {
+      //console.log(i) this i value is the column index
+      //data.index is the sequential index
+      //(Math.floor(data.index/board[0].length)) is the row index
+      console.log((Math.floor(data.index/board[0].length)))
+      return (
+        <View style={[{ backgroundColor: data.color }, styles.item]} key={i} >
+          <Text>
+            {board[(Math.floor(data.index/board[0].length))][i]}
+          </Text>
+        </View>
+      )
+    }
+
 
   render() {
     return (
@@ -52,7 +71,7 @@ export default class LinksScreen extends React.Component {
         itemsPerRow={board[0].length}
         itemHasChanged={(d1, d2) => d1 !== d2}
         onEndReached={() =>
-          this.setState({ data: [...this.state.data, ...generateRandomColorsArray(21)] })}
+          this.setState({ data: [...this.state.data, ...generateDataArray(21)] })}
       />
     );
   }
