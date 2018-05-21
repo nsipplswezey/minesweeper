@@ -54,9 +54,12 @@ export default class LinksScreen extends React.Component {
       // console.log((Math.floor(data.index/board[0].length)))
       let row = (Math.floor(data.index/board[0].length))
       let column = i
+      let value = board[row][column]
+      let randomColor = data.color
+      let valueColor = colors[value]
 
       return (
-        <TouchableOpacity style={[{ backgroundColor: data.color }, styles.item]} key={i} onPress={()=>{console.log(board[row][column])}} >
+        <TouchableOpacity style={[{ backgroundColor: valueColor }, styles.item]} key={i} onPress={()=>{console.log(value)}} >
           <Text>
             {board[(Math.floor(data.index/board[0].length))][i]}
           </Text>
