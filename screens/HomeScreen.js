@@ -7,8 +7,11 @@ import {
   Text,
   TouchableOpacity,
   View,
+  TextInput,
+  StatusBar
 } from 'react-native';
 import { WebBrowser } from 'expo';
+import { Constants } from 'expo';
 
 import { MonoText } from '../components/StyledText';
 
@@ -17,52 +20,83 @@ export default class HomeScreen extends React.Component {
     header: null,
   };
 
+  state = {
+    length: "",
+    width: "",
+    mines: "",
+  };
+
   render() {
+    const { navigate } = this.props.navigation;
+
     return (
       <View style={styles.container}>
-        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-          <View style={styles.welcomeContainer}>
-            <Image
-              source={
-                __DEV__
-                  ? require('../assets/images/robot-dev.png')
-                  : require('../assets/images/robot-prod.png')
-              }
-              style={styles.welcomeImage}
-            />
-          </View>
-
-          <View style={styles.getStartedContainer}>
-            {this._maybeRenderDevelopmentModeWarning()}
-
-            <Text style={styles.getStartedText}>Get started by opening</Text>
-
-            <View style={[styles.codeHighlightContainer, styles.homeScreenFilename]}>
-              <MonoText style={styles.codeHighlightText}>screens/HomeScreen.js</MonoText>
-            </View>
-
-            <Text style={styles.getStartedText}>
-              Change this text and your app will automatically reload.
-            </Text>
-          </View>
-
-          <View style={styles.helpContainer}>
-            <TouchableOpacity onPress={this._handleHelpPress} style={styles.helpLink}>
-              <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-
-        <View style={styles.tabBarInfoContainer}>
-          <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
-
-          <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-            <MonoText style={styles.codeHighlightText}>navigation/MainTabNavigator.js</MonoText>
-          </View>
+        <StatusBar barStyle="light-content" />
+        <View style={styles.header}>
+          <Text style={styles.description}>
+            Welcome to Minesweeper! Enter the dimensions of your minefield, and how many mines
+            you want to sweep. See how many mines you can handle! Try and see how changing
+            the dimensions of your minefield makes it harder or easier to find your mines!
+            Good luck! Have fun!
+          </Text>
         </View>
+        <TextInput
+          style={styles.input}
+          value={`${this.state.length}`}
+          onChangeText={length => this.setState({length})}
+          ref={ref => {this._nameInput = ref}}
+          placeholder="Length"
+          autoFocus={true}
+          autoCapitalize="words"
+          autoCorrect={true}
+          keyboardType="numeric"
+          returnKeyType="next"
+          onSubmitEditing={this._next}
+          blurOnSubmit={false}
+          maxLength={3}
+        />
+        <TextInput
+          style={styles.input}
+          value={`${this.state.width}`}
+          onChangeText={width => this.setState({width})}
+          ref={ref => {this._emailInput = ref}}
+          placeholder="Width"
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="numeric"
+          returnKeyType="next"
+          onSubmitEditing={this._submit}
+          blurOnSubmit={true}
+          maxLength={3}
+        />
+        <TextInput
+          style={styles.input}
+          value={`${this.state.mines}`}
+          onChangeText={mines => this.setState({mines})}
+          ref={ref => {this._emailInput = ref}}
+          placeholder="Mines"
+          autoCapitalize="none"
+          autoCorrect={false}
+          keyboardType="numeric"
+          returnKeyType="done"
+          onSubmitEditing={this._submit.bind(null,navigate)}
+          blurOnSubmit={true}
+          maxLength={3}
+        />
       </View>
     );
   }
+
+  _next = () => {
+    this._emailInput && this._emailInput.focus();
+  };
+
+  _submit = (navigate) => {
+    alert(`Welcome, your minesweeper has been set to ${this.state.length}-by-${this.state.width} and ${this.state.mines} mines! Good luck, and have fun!`);
+
+    navigate('Board', { name: 'Jane' })
+
+  };
 
   _maybeRenderDevelopmentModeWarning() {
     if (__DEV__) {
@@ -87,21 +121,31 @@ export default class HomeScreen extends React.Component {
     }
   }
 
-  _handleLearnMorePress = () => {
-    WebBrowser.openBrowserAsync('https://docs.expo.io/versions/latest/guides/development-mode');
-  };
-
-  _handleHelpPress = () => {
-    WebBrowser.openBrowserAsync(
-      'https://docs.expo.io/versions/latest/guides/up-and-running.html#can-t-see-your-changes'
-    );
-  };
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#ecf0f1',
+  },
+  header: {
+    paddingTop: 20 + Constants.statusBarHeight,
+    padding: 20,
+    backgroundColor: '#336699',
+  },
+  description: {
+    fontSize: 14,
+    color: 'white',
+  },
+  input: {
+    margin: 20,
+    marginBottom: 0,
+    height: 34,
+    paddingHorizontal: 10,
+    borderRadius: 4,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    fontSize: 16,
   },
   developmentModeText: {
     marginBottom: 20,
@@ -109,77 +153,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 19,
     textAlign: 'center',
-  },
-  contentContainer: {
-    paddingTop: 30,
-  },
-  welcomeContainer: {
-    alignItems: 'center',
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  welcomeImage: {
-    width: 100,
-    height: 80,
-    resizeMode: 'contain',
-    marginTop: 3,
-    marginLeft: -10,
-  },
-  getStartedContainer: {
-    alignItems: 'center',
-    marginHorizontal: 50,
-  },
-  homeScreenFilename: {
-    marginVertical: 7,
-  },
-  codeHighlightText: {
-    color: 'rgba(96,100,109, 0.8)',
-  },
-  codeHighlightContainer: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 3,
-    paddingHorizontal: 4,
-  },
-  getStartedText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    lineHeight: 24,
-    textAlign: 'center',
-  },
-  tabBarInfoContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    ...Platform.select({
-      ios: {
-        shadowColor: 'black',
-        shadowOffset: { height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-      },
-      android: {
-        elevation: 20,
-      },
-    }),
-    alignItems: 'center',
-    backgroundColor: '#fbfbfb',
-    paddingVertical: 20,
-  },
-  tabBarInfoText: {
-    fontSize: 17,
-    color: 'rgba(96,100,109, 1)',
-    textAlign: 'center',
-  },
-  navigationFilename: {
-    marginTop: 5,
-  },
-  helpContainer: {
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  helpLink: {
-    paddingVertical: 15,
   },
   helpLinkText: {
     fontSize: 14,

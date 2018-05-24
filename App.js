@@ -62,7 +62,8 @@ const initialState = {
   mines: 5,
   gridDimension: {length: 6, width: 6},
   time: 0,
-  lost: 0
+  lost: false,
+  active: false
 };
 
 const reducer = (state = initialState, action) => {
@@ -75,8 +76,22 @@ const reducer = (state = initialState, action) => {
 
       state.board[row][column].touched = true
 
-      return { ...state, cells: state.cells, board: state.board };
+      return { ...state, cells: state.cells, board: state.board, time: state.time, active: state.active };
     }
+    case 'UPDATE_TIME': {
+      return {...state, time: state.time + 1, active: state.active}
+    }
+    case 'SET_ACTIVE': {
+      return {...state, active: true}
+    }
+    case 'SET_INACTIVE': {
+      return {...state, active: false}
+    }
+    case 'RESET_TIME': {
+      return {...state, time: 0, active: state.active}
+    }
+
+
     default: {
       return state;
     }
