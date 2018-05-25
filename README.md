@@ -3,8 +3,11 @@
 ## Development
 
 Clone the repo
+
 Open project in Expo XDE
+
 `npm install`
+
 Click share and either scan the QR code on Android, or text yourself a link on iOS
 
 Or email me at nsippl[remove]swezey[me]@gmail.com and I'll send you a text message with a link to get it up and running.
