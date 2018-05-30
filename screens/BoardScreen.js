@@ -48,9 +48,9 @@ class Board extends React.Component {
           onPress={this._handlePress.bind(this,data,cell,navigate)}>
 
           <Text>
-            id:{index}
-            {"\n"}
-            state:{board[row][column].value}
+            i:{index}x:{board[row][column].coord.x}y:{board[row][column].coord.y} 
+            {'\n'}
+            b:{board[row][column].mine} v:{board[row][column].value}
           </Text>
 
         </TouchableOpacity>
