@@ -25,8 +25,9 @@ class Board extends React.Component {
       let column = i
       let value = board[row][column].value
       let touched = board[row][column].touched
+      let revealed = board[row][column].revealed
 
-      let valueColor = !touched ? '#D3D3D3' : data.colors[value]
+      let valueColor = !revealed ? '#D3D3D3' : data.colors[value]
 
       let visability = { backgroundColor: valueColor }
 
@@ -35,7 +36,8 @@ class Board extends React.Component {
         column:column,
         index:index,
         value:value,
-        touched:touched
+        touched:touched,
+        revealed:revealed
       }
 
       //navigator passed from parent all that way down to press handler
@@ -48,15 +50,14 @@ class Board extends React.Component {
           onPress={this._handlePress.bind(this,data,cell,navigate)}>
 
           <Text>
-            i:{index}x:{board[row][column].coord.x}y:{board[row][column].coord.y} 
+            x:{board[row][column].coord.x}y:{board[row][column].coord.y}
             {'\n'}
-            b:{board[row][column].mine} v:{board[row][column].value}
+            v:{board[row][column].value}
           </Text>
 
         </TouchableOpacity>
       )
     }
-
 
   render() {
     // let totalColumns = this.props.data.board[0].length
@@ -86,7 +87,7 @@ class Board extends React.Component {
 
     this.props.update(data,cell)
 
-    if(isNaN(cell.value)){
+    if(cell.value === -1){
       this.props.resetTime()
       this.props.setInactive()
       clearTimeout(this.state.timer)

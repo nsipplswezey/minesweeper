@@ -19,117 +19,75 @@ const colors = [
 ];
 
 const input = [
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 1, 0, 0, 0],
-    [0, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 1]
+    [0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 1, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 0, 0, 1, 0],
+    [0, 0, 1, 1, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0]
 ]
 
 //mine or no mine
 //revealed or not revealed
 
-function makeCell(value) {
+let columnLength = input[0].length - 1
+let rowLength = input.length - 1
 
-    let mine = value
-
-    return {
-        touched: false,
-        revealed: false,
-        mine: mine
-    }
-}
-
-let field = input.map((row) => {
-
-    return row.map((cellValue) => {
-
-        return makeCell(cellValue)
-
-    })
-
-
-})
-
-function getNeighbors(x, y, board) {
-    let columnLength = board[0].length - 1
-    let rowLength = board.length - 1
+function makeCell(mine,x,y,board) {
 
     let upY = y - 1
     let downY = y + 1
-    // console.log(upY)
-    // console.log(downY)
     let rightX = x + 1
-    let leftX = y - 1
-    // console.log(rightX)
-    // console.log(leftX)    
+    let leftX = x - 1
 
-    let top = y > 0 ? board[x][y - 1] : null
-    let topRight = y > 0 & x < rowLength ? board[x + 1][y - 1] : null
-    let right = x < rowLength ? board[x + 1][y] : null
-    let bottomRight = x < rowLength & y < columnLength ? board[x + 1][y + 1] : null
-    let bottom = y < columnLength ? board[x][y + 1] : null
-    let bottomLeft = x > 0 & y < columnLength ? board[x - 1][y + 1] : null
-    let left = x > 0 ? board[x - 1][y] : null
-    let topLeft = x > 0 & y > 0 ? board[x - 1][y - 1] : null
+    //TODO: Refactor into something better
+    let top = y > 0 ? { x: x, y: upY } : null
+    let topRight = y > 0 & x < rowLength ? { x: rightX, y: upY } : null
+    let right = x < rowLength ? { x: rightX, y: y } : null
+    let bottomRight = x < rowLength & y < columnLength ? { x: rightX, y: downY } : null
+    let bottom = y < columnLength ? { x: x, y: downY } : null
+    let bottomLeft = x > 0 & y < columnLength ? { x: leftX, y: downY } : null
+    let left = x > 0 ? { x: leftX, y: y } : null
+    let topLeft = x > 0 & y > 0 ? { x: leftX, y: upY } : null
 
-    top === null ? null : top.coord = { x: x, y: upY }
-    topRight === null ? null : topRight.coord = { x: rightX, y: upY }
-    right === null ? null : right.coord = { x: rightX, y: y }
-    bottomRight === null ? null : bottomRight.coord = { x: rightX, y: downY }
-    bottom === null ? null : bottom.coord = { x: x, y: downY }
-    bottomLeft === null ? null : bottomLeft.coord = { x: leftX, y: downY }
-    left === null ? null : left.coord = { x: leftX, y: y }
-    topLeft === null ? null : topLeft.coord = { x: leftX, y: upY }
+    let neighbors = [top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft] 
+    let value = -1
 
-    let neighbors = [top, topRight, right, bottomRight, bottom, bottomLeft, left, topLeft]
-
-    return neighbors
-
-
+    //generate the derived value from neighbor coordinates
+    if (!mine){
+        value = neighbors.map( (neighbor) => {
+            //filter out nulls
+            if(neighbor){
+                return board[neighbor.x][neighbor.y]
+            }
+        })
+        .reduce((sum, mine) => {
+            if (mine) {
+                sum += mine
+            }
+            return sum
+        }, 0)
+    }
+    
+    return {
+        touched: false,
+        revealed: false,
+        mine: mine,
+        coord: {x:x,y:y},
+        neighbors: neighbors,
+        value: value
+    }
 }
 
-//Go through all cells of the field
-//Look at their neighbors
-//Set value equal to number of neighbors that are mine
-field.forEach((row, x, board) => {
-
-    row.forEach((cell, y) => {
-
-        let neighbors = getNeighbors(x, y, board)
-
-        if (!cell.mine) {
-
-            cell.value = neighbors.reduce((sum, ele) => {
-
-                if (ele) {
-                    sum += ele.mine
-                }
-                return sum
-            }, 0)
-
-        } else {
-            cell.value = -1
-        }
-
-        // console.log(cell)
-        // console.log(x,y)
-        // console.log('cell.value')
-        // console.log(cell.value)
-
+//Generate our base field
+let field = input.map((row,x,board) => {
+    return row.map((mine,y) => {
+        return makeCell(mine,x,y,board)
     })
-
 })
 
 //we can keep a history object, with progressive touches...
 //and we just push the next touched field into the array
-
-let history = []
-history.push(field)
-
-// console.log(history)
 
 function last(collection) {
     let lastIndex = collection.length - 1
@@ -137,8 +95,6 @@ function last(collection) {
 
 }
 
-//Now we need a touched function...
-//We can make it a pure function, or a method of an object. Let's start pure
 
 //Touch Also contains some other things
 //If it's a mine, we need to game over
@@ -157,12 +113,6 @@ function last(collection) {
 //If the value is 0, then we reveal, and queue up all neighbors
 //If the value is !== 0, then we reveal, but we don't queue up any neighbors
 
-//Dope... I've got a getNeighbors method that seems to work...
-//And upon first testing it does work...
-
-//So now... this is looking pretttttty clean.
-
-
 function reveal(x, y, history) {
     let queue = []
 
@@ -173,38 +123,35 @@ function reveal(x, y, history) {
     queue.push(currentBoard[x][y])
 
     //while there are cells to reveal
+    
     while (queue.length) {
 
         let currentCell = queue.shift()
-        // console.log(currentCell)
         let revealX = currentCell.coord.x
         let revealY = currentCell.coord.y
 
-
-        if (revealX >= 0 && revealX <= rowLength &&
-            revealY >= 0 && revealY <= columnLength) {
+        if (revealX >= 0 && revealX <= rowLength+1 &&
+            revealY >= 0 && revealY <= columnLength+1) {
 
             //if has no bomb neighbor
             if (currentBoard[revealX][revealY].value === 0) {
                 currentBoard[revealX][revealY].revealed = true
 
-                getNeighbors(revealX, revealY, currentBoard)
-                    //filter out nulls
-                    //filter out revealed cells
-                    .filter((ele) => {
-
-                        if (ele && !ele.revealed) {
-                            return ele
-                        }
-
-                    })
-                    //push remaining elements
-                    .forEach((ele) => {
-
-                        queue.unshift(ele)
-                        // console.log(queue.length)
-
-                    })
+                //get neighboring cells
+                //remove nulls, and ignore revealed cells
+                currentCell.neighbors
+                .filter( (neighbor)=> {
+                    if (neighbor && !currentBoard[neighbor.x][neighbor.y].revealed) {
+                        return true
+                    }
+                })
+                .map( (neighbor) => {
+                    return currentBoard[neighbor.x][neighbor.y]
+                })
+                //push neighbor elements into queue
+                .forEach((ele) => {
+                    queue.unshift(ele)
+                })
 
             }
 
@@ -216,47 +163,50 @@ function reveal(x, y, history) {
         }
 
     }
-}
-
-
-function touch(x, y, history) {
-    let currentBoard = last(history)
-
-    if (currentBoard[x][y].mine === 1) {
-        console.warn("Game over")
-        return history
-    }
-
-    currentBoard[x][y].revealed = true
-
     history.push(currentBoard)
     return history
 }
 
 
-//The beginning of some basic tests... essentially 4 touches
-//TODO: Refactor these into their own test file, test against expected result
-let touch1 = touch(0, 0, history)
-// console.log(last(touch1))
-let touch2 = touch(1, 1, history)
-// console.log(last(touch2))
-let touch3 = touch(2, 2, history)
-// console.log(last(touch3))
-let touch4 = touch(3, 3, history)
-// console.log(history.length)
+//Helper function for rough testing
+// function touch(x, y, history) {
+//     let currentBoard = last(history)
+
+//     if (currentBoard[x][y].mine === 1) {
+//         console.warn("Game over")
+//         return history
+//     }
+
+//     currentBoard[x][y].revealed = true
+
+//     history.push(currentBoard)
+//     return history
+// }
+
+// let history = []
+// history.push(field)
+
+// //The beginning of some basic tests... essentially 4 touches
+// //TODO: Refactor these into their own test file, test against expected result
+// let touch1 = touch(0, 0, last(history))
+// // console.log(last(touch1))
+// let touch2 = touch(1, 1, last(history))
+// // console.log(last(touch2))
+// let touch3 = touch(2, 2, last(history))
+// // console.log(last(touch3))
+// let touch4 = touch(3, 3, last(history))
+// // console.log(history.length)
+// // console.log(last(history))
+
+// // TESTS
+// // History should have length 4 after 4 touches
+// // console.log(`History should have length 4 after 4 touches`) //doesn't match expectations
+// // console.log(history.length === 3)
+// // console.log(history)
+
+// reveal(0, 0, history)
+// reveal(1, 1, history)
 // console.log(last(history))
-
-//TESTS
-//History should have length 4 after 4 touches
-// console.log(`History should have length 4 after 4 touches`) //doesn't match expectations
-// console.log(history.length === 3)
-// console.log(history)
-
-reveal(0, 0, history)
-// reveal(1,1,history)
-// console.log(last(history))
-
-const board = field
 
 // Object {
 //     "touched": false,
@@ -269,12 +219,13 @@ const board = field
 //     "value": 1,
 //   }
 
-// console.log(board)
 
+const board = field
 let dimensions = board.length * board[0].length
 
 const initialState = {
     cells: generateDataArray(dimensions),
+    history: [board],
     board: board,
     mines: 5,
     gridDimension: { length: 6, width: 6 },
@@ -286,14 +237,16 @@ const initialState = {
 const reducer = (state = initialState, action) => {
     switch (action.type) {
         case 'UPDATE': {
-
             let row = action.cell.row
             let column = action.cell.column
             let index = action.cell.index
 
             state.board[row][column].touched = true
 
-            return { ...state, cells: state.cells, board: state.board, time: state.time, active: state.active };
+            state.history = reveal(row,column,state.history)
+            state.board = last(state.history)
+
+            return { ...state, cells: state.cells, history: state.history, board: board, time: state.time, active: state.active };
         }
         case 'UPDATE_TIME': {
             return { ...state, time: state.time + 1, active: state.active }
@@ -307,8 +260,6 @@ const reducer = (state = initialState, action) => {
         case 'RESET_TIME': {
             return { ...state, time: 0, active: state.active }
         }
-
-
         default: {
             return state;
         }

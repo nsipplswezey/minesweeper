@@ -45,43 +45,43 @@ export default class HomeScreen extends React.Component {
           value={`${this.state.length}`}
           onChangeText={length => this.setState({length})}
           ref={ref => {this._nameInput = ref}}
-          placeholder="Length"
+          placeholder="Length (default 6)"
           autoFocus={true}
           autoCapitalize="words"
           autoCorrect={true}
           keyboardType="numeric"
-          returnKeyType="next"
+          returnKeyType="done"
           onSubmitEditing={this._next}
           blurOnSubmit={false}
-          maxLength={3}
+          maxLength={2}
         />
         <TextInput
           style={styles.input}
           value={`${this.state.width}`}
           onChangeText={width => this.setState({width})}
           ref={ref => {this._emailInput = ref}}
-          placeholder="Width"
+          placeholder="Width (default 6)"
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="numeric"
-          returnKeyType="next"
+          returnKeyType="done"
           onSubmitEditing={this._submit}
           blurOnSubmit={true}
-          maxLength={3}
+          maxLength={2}
         />
         <TextInput
           style={styles.input}
           value={`${this.state.mines}`}
           onChangeText={mines => this.setState({mines})}
           ref={ref => {this._emailInput = ref}}
-          placeholder="Mines"
+          placeholder="Mines (default 5)"
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="numeric"
           returnKeyType="done"
           onSubmitEditing={this._submit.bind(null,navigate)}
           blurOnSubmit={true}
-          maxLength={3}
+          maxLength={1}
         />
       </View>
     );
