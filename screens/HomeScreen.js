@@ -44,14 +44,14 @@ export default class HomeScreen extends React.Component {
           style={styles.input}
           value={`${this.state.length}`}
           onChangeText={length => this.setState({length})}
-          ref={ref => {this._nameInput = ref}}
+          ref={ref => {this._heightInput = ref}}
           placeholder="Length (default 6)"
           autoFocus={true}
           autoCapitalize="words"
           autoCorrect={true}
           keyboardType="numeric"
           returnKeyType="done"
-          onSubmitEditing={this._next}
+          onSubmitEditing={this._focusWidth}
           blurOnSubmit={false}
           maxLength={2}
         />
@@ -59,13 +59,13 @@ export default class HomeScreen extends React.Component {
           style={styles.input}
           value={`${this.state.width}`}
           onChangeText={width => this.setState({width})}
-          ref={ref => {this._emailInput = ref}}
+          ref={ref => {this._widthInput = ref}}
           placeholder="Width (default 6)"
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="numeric"
           returnKeyType="done"
-          onSubmitEditing={this._submit}
+          onSubmitEditing={this._focusMines}
           blurOnSubmit={true}
           maxLength={2}
         />
@@ -73,7 +73,7 @@ export default class HomeScreen extends React.Component {
           style={styles.input}
           value={`${this.state.mines}`}
           onChangeText={mines => this.setState({mines})}
-          ref={ref => {this._emailInput = ref}}
+          ref={ref => {this._minesInput = ref}}
           placeholder="Mines (default 5)"
           autoCapitalize="none"
           autoCorrect={false}
@@ -87,8 +87,12 @@ export default class HomeScreen extends React.Component {
     );
   }
 
-  _next = () => {
-    this._emailInput && this._emailInput.focus();
+  _focusWidth = () => {
+    this._widthInput && this._widthInput.focus();
+  };
+
+  _focusMines = () => {
+    this._minesInput && this._minesInput.focus();
   };
 
   _submit = (navigate) => {

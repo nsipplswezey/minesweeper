@@ -13,51 +13,51 @@ class Board extends React.Component {
   }
 
   state = {
-    timer : null
+    timer: null
   }
 
   _renderItem = (data, i) => {
-      let board = this.props.board
-      let totalColumns = board[0].length
-      let index = data.index
+    let board = this.props.board
+    let totalColumns = board[0].length
+    let index = data.index
 
-      let row = (Math.floor(data.index/totalColumns))
-      let column = i
-      let value = board[row][column].value
-      let touched = board[row][column].touched
-      let revealed = board[row][column].revealed
+    let row = (Math.floor(data.index / totalColumns))
+    let column = i
+    let value = board[row][column].value
+    let touched = board[row][column].touched
+    let revealed = board[row][column].revealed
 
-      let valueColor = !revealed ? '#D3D3D3' : data.colors[value]
+    let valueColor = !revealed ? '#D3D3D3' : data.colors[value]
 
-      let visability = { backgroundColor: valueColor }
+    let visability = { backgroundColor: valueColor }
 
-      let cell = {
-        row:row,
-        column:column,
-        index:index,
-        value:value,
-        touched:touched,
-        revealed:revealed
-      }
-
-      //navigator passed from parent all that way down to press handler
-      let navigate = this.props.navigate
-
-      return (
-        <TouchableOpacity
-          style={[visability, styles.item]}
-          key={i}
-          onPress={this._handlePress.bind(this,data,cell,navigate)}>
-
-          <Text>
-            x:{board[row][column].coord.x}y:{board[row][column].coord.y}
-            {'\n'}
-            v:{board[row][column].value}
-          </Text>
-
-        </TouchableOpacity>
-      )
+    let cell = {
+      row: row,
+      column: column,
+      index: index,
+      value: value,
+      touched: touched,
+      revealed: revealed
     }
+
+    //navigator passed from parent all that way down to press handler
+    let navigate = this.props.navigate
+
+    return (
+      <TouchableOpacity
+        style={[visability, styles.item]}
+        key={i}
+        onPress={this._handlePress.bind(this, data, cell, navigate)}>
+
+        <Text>
+          x:{board[row][column].coord.x}y:{board[row][column].coord.y}
+          {'\n'}
+          v:{board[row][column].value}
+        </Text>
+
+      </TouchableOpacity>
+    )
+  }
 
   render() {
     // let totalColumns = this.props.data.board[0].length
@@ -72,22 +72,23 @@ class Board extends React.Component {
         renderItem={this._renderItem}
         data={this.props.cells}
         itemsPerRow={totalColumns}
-        itemHasChanged={(d1, d2) => {return true}} //TODO: Assess how to use itemHasChanged to potentially address the this.forceUpdate() issue
+        itemHasChanged={(d1, d2) => { return true }} //TODO: Assess how to use itemHasChanged to potentially address the this.forceUpdate() issue
         onEndReached={() => {
           console.log('end of board reached')
           //this.setState({ data: [...this.state.data, ...generateDataArray(21)] })
-          }
+        }
         }
       />
 
     );
   }
 
-  _handlePress(data,cell,navigate) {
+  _handlePress(data, cell, navigate) {
 
-    this.props.update(data,cell)
+    this.props.update(data, cell)
 
-    if(cell.value === -1){
+    //Stop clock on mine
+    if (cell.value === -1) {
       this.props.resetTime()
       this.props.setInactive()
       clearTimeout(this.state.timer)
@@ -99,7 +100,7 @@ class Board extends React.Component {
     }
 
     //TODO:Refactor into timer handler. Also refactor to remove .bind
-    if(!this.props.active){
+    if (!this.props.active) {
       this.props.setActive()
 
       var interval = 1000; // ms
@@ -107,13 +108,23 @@ class Board extends React.Component {
       this.state.timer = setTimeout(step.bind(this), interval);
 
       function step() {
-          var dt = Date.now() - expected; // the drift (positive for overshooting)
-          if (dt > interval) {
-              // handle any bad clock issues
-          }
-          this.props.updateTime()
-          expected += interval;
-          this.state.timer = setTimeout(step.bind(this), Math.max(0, interval - dt)); // take into account drift
+
+        //Stop clock if all non-mines are revealed
+        if (this.props.totalRevealed === (this.props.gridDimension.length * this.props.gridDimension.width) - this.props.mines) {
+          this.props.setInactive()
+          clearTimeout(this.state.timer)
+          return
+        }
+
+
+        //Otherwise continue updating time.
+        var dt = Date.now() - expected; // the drift (positive for overshooting)
+        if (dt > interval) {
+          // handle any bad clock issues
+        }
+        this.props.updateTime()
+        expected += interval;
+        this.state.timer = setTimeout(step.bind(this), Math.max(0, interval - dt)); // take into account drift
       }
     }
 
@@ -128,34 +139,37 @@ const mapStateToProps = state => {
     cells: state.cells,
     board: state.board,
     time: state.time,
-    active: state.active
+    active: state.active,
+    totalRevealed: state.totalRevealed,
+    gridDimension: state.gridDimension,
+    mines: state.mines
   }
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    update : (data, cell) => {
-      dispatch({type:'UPDATE', data:data, cell:cell })
+    update: (data, cell) => {
+      dispatch({ type: 'UPDATE', data: data, cell: cell })
     },
-    updateTime : () => {
-      dispatch({type:'UPDATE_TIME'})
+    updateTime: () => {
+      dispatch({ type: 'UPDATE_TIME' })
     },
-    setActive : () => {
-      dispatch({type:'SET_ACTIVE'})
+    setActive: () => {
+      dispatch({ type: 'SET_ACTIVE' })
     },
-    setInactive : () => {
-      dispatch({type:'SET_INACTIVE'})
+    setInactive: () => {
+      dispatch({ type: 'SET_INACTIVE' })
     },
-    resetTime : () => {
-      dispatch({type:'RESET_TIME'})
+    resetTime: () => {
+      dispatch({ type: 'RESET_TIME' })
     },
   }
 }
 
 const ConnectedBoard = connect(mapStateToProps, mapDispatchToProps)(Board);
 
-class Timer extends React.Component{
-  render(){
+class Timer extends React.Component {
+  render() {
     return <Text>{this.props.time}</Text>
   }
 

@@ -167,6 +167,22 @@ function reveal(x, y, history) {
     return history
 }
 
+function sumRevealed(board){
+
+    return board.reduce( (boardMemo,row) => {
+
+        let rowSum = row.reduce( (rowMemo,cell) => {
+            if(cell.revealed){
+                return rowMemo+1
+            }
+            return rowMemo
+        },0)
+
+        return boardMemo+rowSum
+    },0)
+
+}
+
 
 //Helper function for rough testing
 // function touch(x, y, history) {
@@ -227,11 +243,12 @@ const initialState = {
     cells: generateDataArray(dimensions),
     history: [board],
     board: board,
-    mines: 5,
-    gridDimension: { length: 6, width: 6 },
+    mines: 7,
+    gridDimension: { length: 7, width: 6 },
     time: 0,
     lost: false,
-    active: false
+    active: false,
+    totalRevealed: 0
 };
 
 const reducer = (state = initialState, action) => {
@@ -246,7 +263,9 @@ const reducer = (state = initialState, action) => {
             state.history = reveal(row,column,state.history)
             state.board = last(state.history)
 
-            return { ...state, cells: state.cells, history: state.history, board: board, time: state.time, active: state.active };
+            state.totalRevealed = sumRevealed(state.board)
+
+            return { ...state, cells: state.cells, history: state.history, board: board, time: state.time, active: state.active, totalRevealed: state.totalRevealed, mines: state.mines };
         }
         case 'UPDATE_TIME': {
             return { ...state, time: state.time + 1, active: state.active }
