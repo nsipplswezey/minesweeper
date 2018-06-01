@@ -30,10 +30,10 @@ const input = [
 //mine or no mine
 //revealed or not revealed
 
-let columnLength = input[0].length - 1
-let rowLength = input.length - 1
+function makeCell(mine,x,y,board,id) {
 
-function makeCell(mine,x,y,board) {
+    let columnLength = board[0].length - 1
+    let rowLength = board.length - 1
 
     let upY = y - 1
     let downY = y + 1
@@ -75,7 +75,8 @@ function makeCell(mine,x,y,board) {
         mine: mine,
         coord: {x:x,y:y},
         neighbors: neighbors,
-        value: value
+        value: value,
+        id: id
     }
 }
 
@@ -236,15 +237,15 @@ function sumRevealed(board){
 //   }
 
 
-const board = field
-let dimensions = board.length * board[0].length
+// const board = field
+// let dimensions = board.length * board[0].length
 
 const initialState = {
-    cells: generateDataArray(dimensions),
-    history: [board],
-    board: board,
-    mines: 7,
-    gridDimension: { length: 7, width: 6 },
+    cells: null,
+    history: [],
+    board: null,
+    mines: null,
+    gridDimension: { length: null, width: null },
     time: 0,
     lost: false,
     active: false,
@@ -265,7 +266,72 @@ const reducer = (state = initialState, action) => {
 
             state.totalRevealed = sumRevealed(state.board)
 
-            return { ...state, cells: state.cells, history: state.history, board: board, time: state.time, active: state.active, totalRevealed: state.totalRevealed, mines: state.mines };
+            return { ...state, cells: state.cells, history: state.history, board: state.board, time: state.time, active: state.active, totalRevealed: state.totalRevealed, mines: state.mines };
+        }
+        case 'GENERATE_BOARD': {
+
+            let length = action.boardPameters.length === "" ? 6 : parseInt(action.boardPameters.length)
+            let width = action.boardPameters.width === "" ? 6 : parseInt(action.boardPameters.width)
+            let mines = action.boardPameters.mines === "" ? 5 : parseInt(action.boardPameters.mines)
+            let dimensions = length * width
+            let cells = generateDataArray(dimensions)
+
+            let newBoard = new Array(length).fill(0).map( (row)=> {
+                return new Array(width).fill(0)
+            })
+
+            function shuffle(a) {
+                var j, x, i;
+                for (i = a.length - 1; i > 0; i--) {
+                    j = Math.floor(Math.random() * (i + 1));
+                    x = a[i];
+                    a[i] = a[j];
+                    a[j] = x;
+                }
+                return a;
+            }
+
+            let mineIds = Array.from(Array(dimensions).keys())
+            shuffle(mineIds)
+            
+            mineIds = mineIds.filter( (ids,index) => {
+                if(index < mines){
+                    return true
+                }
+            })
+            .reduce( (memo,ele) => {
+                memo[ele] = ele
+                return memo
+            },{})
+
+            let counter = 0
+            newBoard.forEach( (row,rowId) => {
+                row.forEach( (cell,columnId) => {
+                    if( mineIds.hasOwnProperty(counter)){
+                        console.log('mine added')
+                        newBoard[rowId][columnId] = 1
+                    }
+                    counter += 1
+                })
+            })
+
+            let board = newBoard.map((row,x,board) => {
+                return row.map((mine,y) => {
+                    return makeCell(mine,x,y,board)
+                })
+            })
+
+            console.log(`GENERATE_BOARD`)
+
+            state.length = length
+            state.width = width
+            state.mines = mines
+            state.history = [board]
+            state.board = board
+            state.cells = cells
+            state.gridDimension = {length:length,width:width}
+
+            return { ...state, cells: state.cells, history: state.history, board: state.board, length: state.length, width: state.width, mines:state.mines, gridDimension: state.gridDimension }
         }
         case 'UPDATE_TIME': {
             return { ...state, time: state.time + 1, active: state.active }

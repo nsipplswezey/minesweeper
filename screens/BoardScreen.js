@@ -23,6 +23,7 @@ class Board extends React.Component {
 
     let row = (Math.floor(data.index / totalColumns))
     let column = i
+
     let value = board[row][column].value
     let touched = board[row][column].touched
     let revealed = board[row][column].revealed
@@ -50,8 +51,6 @@ class Board extends React.Component {
         onPress={this._handlePress.bind(this, data, cell, navigate)}>
 
         <Text>
-          x:{board[row][column].coord.x}y:{board[row][column].coord.y}
-          {'\n'}
           v:{board[row][column].value}
         </Text>
 
@@ -87,6 +86,17 @@ class Board extends React.Component {
 
     this.props.update(data, cell)
 
+    //Stop clock on all non-mines revealed
+    let totalNonMines = this.props.gridDimension.x * this.props.gridDimension.y - this.props.mines
+    console.log(totalNonMines)
+    console.log(this.props.mines)
+    console.log(this.props.gridDimension.x)
+    console.log(this.props.totalRevealed)
+    if(this.props.totalRevealed === totalNonMines){
+      alert('You did it! You revealed all the mines!')
+      clearTimeout(this.state.timer)
+    }
+
     //Stop clock on mine
     if (cell.value === -1) {
       this.props.resetTime()
@@ -94,7 +104,6 @@ class Board extends React.Component {
       clearTimeout(this.state.timer)
       alert(`Oh no, you hit a mine during your sweep! Try again! Game over!`);
       navigate('Home', { name: 'Jane' })
-      // this.props.navigation.navigate('Home', { name: 'Jane' })
 
       return
     }

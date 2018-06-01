@@ -15,7 +15,9 @@ import { Constants } from 'expo';
 
 import { MonoText } from '../components/StyledText';
 
-export default class HomeScreen extends React.Component {
+import { connect } from 'react-redux'; // 5.0.6
+
+class HomeScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
@@ -96,9 +98,22 @@ export default class HomeScreen extends React.Component {
   };
 
   _submit = (navigate) => {
-    alert(`Welcome, your minesweeper has been set to ${this.state.length}-by-${this.state.width} and ${this.state.mines} mines! Good luck, and have fun!`);
 
-    navigate('Board', { name: 'Jane' })
+    let length = this.state.length || 6
+    let width = this.state.width || 6
+    let mines = this.state.mines || 5
+
+    let boardParameters = {
+      length: length,
+      width: width,
+      mines: mines
+    }
+
+    alert(`Welcome, your minesweeper has been set to ${length}-by-${width} and ${mines} mines! Good luck, and have fun!`);
+
+    this.props.generateBoard(boardParameters)
+
+    navigate('Board')
 
   };
 
@@ -126,6 +141,27 @@ export default class HomeScreen extends React.Component {
   }
 
 }
+
+const mapStateToProps = state => {
+  return {
+    length: state.length,
+    width: state.width,
+    mines: state.mines,
+    board: state.board,
+    history: state.history
+  }
+}
+
+const mapDispatchToProps = dispatch => {
+  return {
+    generateBoard: (boardParameters) => {
+      dispatch({ type: 'GENERATE_BOARD', boardPameters:boardParameters })
+    }
+  }
+}
+
+const ConnectedHomeScreen = connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
+export default ConnectedHomeScreen
 
 const styles = StyleSheet.create({
   container: {
