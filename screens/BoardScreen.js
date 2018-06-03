@@ -51,7 +51,7 @@ class Board extends React.Component {
         onPress={this._handlePress.bind(this, data, cell, navigate)}>
 
         <Text>
-          v:{board[row][column].value}
+          {/*v:{board[row][column].value}*/}
         </Text>
 
       </TouchableOpacity>
@@ -59,7 +59,6 @@ class Board extends React.Component {
   }
 
   render() {
-    // let totalColumns = this.props.data.board[0].length
     let totalColumns = this.props.board[0].length
 
     return (
@@ -74,7 +73,7 @@ class Board extends React.Component {
         itemHasChanged={(d1, d2) => { return true }} //TODO: Assess how to use itemHasChanged to potentially address the this.forceUpdate() issue
         onEndReached={() => {
           console.log('end of board reached')
-          //this.setState({ data: [...this.state.data, ...generateDataArray(21)] })
+          //this.setState({ data: [...this.state.data, ...generateDataArray(21)] }) //TODO: Infinite board
         }
         }
       />
@@ -87,14 +86,14 @@ class Board extends React.Component {
     this.props.update(data, cell)
 
     //Stop clock on all non-mines revealed
-    let totalNonMines = this.props.gridDimension.x * this.props.gridDimension.y - this.props.mines
-    console.log(totalNonMines)
-    console.log(this.props.mines)
-    console.log(this.props.gridDimension.x)
-    console.log(this.props.totalRevealed)
-    if(this.props.totalRevealed === totalNonMines){
-      alert('You did it! You revealed all the mines!')
+    this.props.updateRevealed()
+    let totalNonMines = this.props.gridDimension.length * this.props.gridDimension.width - this.props.mines
+    
+    if(this.props.totalRevealed === totalNonMines - 1){
+      this.props.setInactive()
       clearTimeout(this.state.timer)
+      alert(`You did it! You revealed all the mines in ${this.props.time} seconds!`)
+      
     }
 
     //Stop clock on mine
@@ -103,7 +102,7 @@ class Board extends React.Component {
       this.props.setInactive()
       clearTimeout(this.state.timer)
       alert(`Oh no, you hit a mine during your sweep! Try again! Game over!`);
-      navigate('Home', { name: 'Jane' })
+      navigate('Home')
 
       return
     }
@@ -124,7 +123,6 @@ class Board extends React.Component {
           clearTimeout(this.state.timer)
           return
         }
-
 
         //Otherwise continue updating time.
         var dt = Date.now() - expected; // the drift (positive for overshooting)
@@ -162,6 +160,9 @@ const mapDispatchToProps = dispatch => {
     },
     updateTime: () => {
       dispatch({ type: 'UPDATE_TIME' })
+    },
+    updateRevealed: () => {
+      dispatch({ type: 'UPDATE_REVEALED' })
     },
     setActive: () => {
       dispatch({ type: 'SET_ACTIVE' })

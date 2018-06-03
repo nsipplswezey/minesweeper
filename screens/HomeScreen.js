@@ -110,7 +110,7 @@ class HomeScreen extends React.Component {
     }
 
     alert(`Welcome, your minesweeper has been set to ${length}-by-${width} and ${mines} mines! Good luck, and have fun!`);
-
+    this.props.resetTime()
     this.props.generateBoard(boardParameters)
 
     navigate('Board')
@@ -156,6 +156,9 @@ const mapDispatchToProps = dispatch => {
   return {
     generateBoard: (boardParameters) => {
       dispatch({ type: 'GENERATE_BOARD', boardPameters:boardParameters })
+    },
+    resetTime: () => {
+      dispatch({ type: 'RESET_TIME' })
     }
   }
 }

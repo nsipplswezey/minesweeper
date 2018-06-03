@@ -18,18 +18,6 @@ const colors = [
     '#FF5722', '#795548', '#9E9E9E', '#607D8B',
 ];
 
-const input = [
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 1, 0, 1, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 1, 0, 0, 0, 1, 0],
-    [0, 0, 1, 1, 1, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0]
-]
-
-//mine or no mine
-//revealed or not revealed
-
 function makeCell(mine,x,y,board,id) {
 
     let columnLength = board[0].length - 1
@@ -80,13 +68,6 @@ function makeCell(mine,x,y,board,id) {
     }
 }
 
-//Generate our base field
-let field = input.map((row,x,board) => {
-    return row.map((mine,y) => {
-        return makeCell(mine,x,y,board)
-    })
-})
-
 //we can keep a history object, with progressive touches...
 //and we just push the next touched field into the array
 
@@ -95,19 +76,6 @@ function last(collection) {
     return collection[lastIndex]
 
 }
-
-
-//Touch Also contains some other things
-//If it's a mine, we need to game over
-//If it's not a mine, we need to touch all neighboring cells
-//What do those touches look like?
-//If they have a number, then we reveal them, but not any further
-//Is the number fixed? Or generated?
-//If generated, then we need to create a generator...
-//But has the upside of building a board just by mine placement...
-//So let's make a generator.
-
-//Alright. From here we need to start revealing neighbors.
 
 //Put a neighbor into the queue
 //Dequeue, and check the value
@@ -184,62 +152,6 @@ function sumRevealed(board){
 
 }
 
-
-//Helper function for rough testing
-// function touch(x, y, history) {
-//     let currentBoard = last(history)
-
-//     if (currentBoard[x][y].mine === 1) {
-//         console.warn("Game over")
-//         return history
-//     }
-
-//     currentBoard[x][y].revealed = true
-
-//     history.push(currentBoard)
-//     return history
-// }
-
-// let history = []
-// history.push(field)
-
-// //The beginning of some basic tests... essentially 4 touches
-// //TODO: Refactor these into their own test file, test against expected result
-// let touch1 = touch(0, 0, last(history))
-// // console.log(last(touch1))
-// let touch2 = touch(1, 1, last(history))
-// // console.log(last(touch2))
-// let touch3 = touch(2, 2, last(history))
-// // console.log(last(touch3))
-// let touch4 = touch(3, 3, last(history))
-// // console.log(history.length)
-// // console.log(last(history))
-
-// // TESTS
-// // History should have length 4 after 4 touches
-// // console.log(`History should have length 4 after 4 touches`) //doesn't match expectations
-// // console.log(history.length === 3)
-// // console.log(history)
-
-// reveal(0, 0, history)
-// reveal(1, 1, history)
-// console.log(last(history))
-
-// Object {
-//     "touched": false,
-//     "coord": Object {
-//       "x": 2,
-//       "y": 1,
-//     },
-//     "mine": 0,
-//     "revealed": true,
-//     "value": 1,
-//   }
-
-
-// const board = field
-// let dimensions = board.length * board[0].length
-
 const initialState = {
     cells: null,
     history: [],
@@ -308,7 +220,6 @@ const reducer = (state = initialState, action) => {
             newBoard.forEach( (row,rowId) => {
                 row.forEach( (cell,columnId) => {
                     if( mineIds.hasOwnProperty(counter)){
-                        console.log('mine added')
                         newBoard[rowId][columnId] = 1
                     }
                     counter += 1
@@ -321,8 +232,6 @@ const reducer = (state = initialState, action) => {
                 })
             })
 
-            console.log(`GENERATE_BOARD`)
-
             state.length = length
             state.width = width
             state.mines = mines
@@ -333,6 +242,9 @@ const reducer = (state = initialState, action) => {
 
             return { ...state, cells: state.cells, history: state.history, board: state.board, length: state.length, width: state.width, mines:state.mines, gridDimension: state.gridDimension }
         }
+        case 'UPDATE_REVEALED': {
+            return { ...state, totalRevealed: state.totalRevealed }
+        }
         case 'UPDATE_TIME': {
             return { ...state, time: state.time + 1, active: state.active }
         }
@@ -340,7 +252,8 @@ const reducer = (state = initialState, action) => {
             return { ...state, active: true }
         }
         case 'SET_INACTIVE': {
-            return { ...state, active: false }
+            state.totalRevealed = 0
+            return { ...state, active: false, totalRevealed : state.totalRevealed }
         }
         case 'RESET_TIME': {
             return { ...state, time: 0, active: state.active }
