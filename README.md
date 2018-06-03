@@ -29,6 +29,8 @@ Revealing: upon tapping a cell, we reveal the tapped cell, and if the tapped cel
 
 Timer: clock operates on a setTimeout loop that corrects for most drift.
 
+Board state: each touch generates a new board, which is stored in a history array. The idea initially was to dump that board history into a simple analytics server, and do a cursory analysis of user play history. Still could be done pretty quickly.
+
 Game: game resets on tapping a mine. Game doesn't reset on a win, but creating a new game will reset the timer and board state.
 
 UI: we use color to indicate number of neighboring mines. After a couple rounds you get a sense of the color-mine mapping
